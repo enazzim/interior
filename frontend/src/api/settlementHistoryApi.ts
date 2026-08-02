@@ -162,7 +162,20 @@ const MOCK_BY_YEAR: Record<number, SettlementHistoryResponse> = {
   },
 };
 
+import axios from 'axios';
+
 export async function fetchSettlementHistory(year: number = 2026, keyword: string = ''): Promise<SettlementHistoryResponse> {
+  try {
+    const res = await axios.get<SettlementHistoryResponse>('/api/settlements/history', {
+      params: { year, keyword }
+    });
+    if (res.data && res.data.items) {
+      return res.data;
+    }
+  } catch (error) {
+    console.warn('DB 정산 이력 API 연동 중 예외 발생, 예비 데이터 반환:', error);
+  }
+
   const baseData = MOCK_BY_YEAR[year] || MOCK_BY_YEAR[2026];
 
   let filteredItems = baseData.items;

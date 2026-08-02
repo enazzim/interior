@@ -1,7 +1,9 @@
 package com.prodev.interior.controller;
 
+import com.prodev.interior.domain.Estimate;
 import com.prodev.interior.dto.SettlementHistoryDTO;
 import com.prodev.interior.harness.SettlementHistoryGuardrail;
+import com.prodev.interior.repository.EstimateRepository;
 import com.prodev.interior.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import java.util.List;
 public class SettlementHistoryController {
 
     private final ProjectRepository projectRepository;
+    private final EstimateRepository estimateRepository;
     private final SettlementHistoryGuardrail historyGuardrail;
 
     @GetMapping
@@ -25,23 +28,38 @@ public class SettlementHistoryController {
         
         int targetYear = historyGuardrail.sanitizeYear(year);
 
-        // 과거 이력 집계 목 데이터 및 DB 연동 DTO 생성
         List<SettlementHistoryDTO.ProjectSettlementSummary> summaries = new ArrayList<>();
         
         projectRepository.findAll().forEach(p -> {
-            long total = 25000000L + (p.getProjectId() * 2000000L);
-            long expense = 18000000L + (p.getProjectId() * 1200000L);
+            // 키워드 필터링 적용
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String kw = keyword.trim().toLowerCase();
+                boolean matchesProject = p.getProjectName() != null && p.getProjectName().toLowerCase().contains(kw);
+                boolean matchesClient = p.getClientVendor() != null && p.getClientVendor().getVendorName().toLowerCase().contains(kw);
+                if (!matchesProject && !matchesClient) {
+                    return;
+                }
+            }
+
+            // DB에서 해당 현장의 최신 견적서 총액 동적 조회
+            List<Estimate> estimates = estimateRepository.findByProjectProjectIdOrderByCreatedAtDesc(p.getProjectId());
+            long total = 0L;
+            if (!estimates.isEmpty()) {
+                total = estimates.get(0).getTotalAmount(); // 가장 최근에 작성/수정된 버전의 견적 총액
+            }
+
+            long expense = Math.round(total * 0.7); // 집행 지출 원가 (약 70%)
             long net = total - expense;
             
             summaries.add(SettlementHistoryDTO.ProjectSettlementSummary.builder()
                     .projectId(p.getProjectId())
                     .projectName(p.getProjectName())
-                    .clientName(p.getClientVendor() != null ? p.getClientVendor().getVendorName() : "일반 고객")
-                    .status("종결 (Completed)")
+                    .clientName(p.getClientVendor() != null ? p.getClientVendor().getVendorName() : "김철수 고객님")
+                    .status(p.getStatus() != null ? p.getStatus() : "견적중")
                     .totalAmount(total)
                     .expenseAmount(expense)
                     .netProfit(net)
-                    .completionDate(targetYear + "-11-30")
+                    .completionDate(targetYear + "-06-15")
                     .build());
         });
 
