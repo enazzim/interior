@@ -13,6 +13,7 @@ export interface ProjectSettlementSummary {
 
 export interface SettlementHistoryResponse {
   year: number;
+  availableYears?: number[];
   totalProjects: number;
   totalRevenue: number;
   totalExpense: number;

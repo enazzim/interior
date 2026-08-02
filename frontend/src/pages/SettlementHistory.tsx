@@ -193,7 +193,7 @@ export default function SettlementHistory() {
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
               
-              {/* 1. 연도 선택 콤보박스 */}
+              {/* 1. 연도 선택 콤보박스 (DB 동적 연도 목록 바인딩) */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--bg-secondary)', padding: '0.5rem 0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                 <Calendar size={16} style={{ color: 'var(--accent-color)' }} />
                 <select
@@ -201,9 +201,14 @@ export default function SettlementHistory() {
                   onChange={(e) => setSelectedYear(Number(e.target.value))}
                   style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', outline: 'none' }}
                 >
-                  <option value={2026}>2026년 아카이브</option>
-                  <option value={2025}>2025년 아카이브</option>
-                  <option value={2024}>2024년 아카이브</option>
+                  {(historyData?.availableYears && historyData.availableYears.length > 0
+                    ? historyData.availableYears
+                    : [selectedYear]
+                  ).map(year => (
+                    <option key={year} value={year}>
+                      {year}년 아카이브
+                    </option>
+                  ))}
                 </select>
               </div>
 

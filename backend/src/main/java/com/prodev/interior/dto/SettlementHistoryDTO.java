@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class SettlementHistoryDTO {
     private Integer year;
+    private List<Integer> availableYears;
     private Integer totalProjects;
     private Long totalRevenue;
     private Long totalExpense;

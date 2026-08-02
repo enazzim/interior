@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/settlements/history")
@@ -27,6 +29,17 @@ public class SettlementHistoryController {
             @RequestParam(required = false) String keyword) {
         
         int targetYear = historyGuardrail.sanitizeYear(year);
+
+        // DB에 존재하는 모든 프로젝트의 실제 연도 목록 동적 추출 (중복 제거 & 최신순 정렬)
+        List<Integer> availableYears = projectRepository.findAll().stream()
+                .map(p -> p.getCreatedAt() != null ? p.getCreatedAt().getYear() : 2026)
+                .distinct()
+                .sorted(Comparator.reverseOrder())
+                .collect(Collectors.toList());
+
+        if (availableYears.isEmpty()) {
+            availableYears.add(targetYear);
+        }
 
         List<SettlementHistoryDTO.ProjectSettlementSummary> summaries = new ArrayList<>();
         
@@ -76,6 +89,7 @@ public class SettlementHistoryController {
 
         SettlementHistoryDTO result = SettlementHistoryDTO.builder()
                 .year(targetYear)
+                .availableYears(availableYears)
                 .totalProjects(summaries.size())
                 .totalRevenue(totalRevenue)
                 .totalExpense(totalExpense)
