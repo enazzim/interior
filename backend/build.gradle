@@ -25,12 +25,16 @@ dependencies {
 	implementation 'net.java.dev.jna:jna:5.14.0'
 	implementation 'net.java.dev.jna:jna-platform:5.14.0'
 	
-	// Excel .xlsx 바이너리 생성을 위한 Apache POI 라이브러리 도입
-	implementation 'org.apache.poi:poi:5.3.0'
+	// Excel .xlsx 바이너리 생성을 위한 Apache POI 라이브러리 경량화
 	implementation 'org.apache.poi:poi-ooxml:5.3.0'
 
-	// AWS S3 연동을 위한 AWS SDK v2
-	implementation 'software.amazon.awssdk:s3:2.25.0'
+	// AWS S3 연동 (무거운 Netty/CRT/Apache 비동기 엔진 제외 및 경량 URLConnectionClient 적용)
+	implementation('software.amazon.awssdk:s3:2.25.0') {
+		exclude group: 'software.amazon.awssdk', module: 'netty-nio-client'
+		exclude group: 'software.amazon.awssdk', module: 'aws-crt-client'
+		exclude group: 'software.amazon.awssdk', module: 'apache-client'
+	}
+	implementation 'software.amazon.awssdk:url-connection-client:2.25.0'
 
 	compileOnly 'org.projectlombok:lombok'
 	implementation 'org.xerial:sqlite-jdbc'
