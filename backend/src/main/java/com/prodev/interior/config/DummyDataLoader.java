@@ -102,8 +102,9 @@ public class DummyDataLoader implements CommandLineRunner {
                     .project(project1)
                     .clientVendor(clientVendor)
                     .authorUser(adminUser)
+                    .version(1)
                     .marginRate(10.0)
-                    .totalAmount(1062000L)
+                    .totalAmount(1062000)
                     .isFinal(true)
                     .build();
             estimateRepository.save(est1);
@@ -113,8 +114,9 @@ public class DummyDataLoader implements CommandLineRunner {
                         .project(project2)
                         .clientVendor(clientVendor)
                         .authorUser(adminUser)
+                        .version(1)
                         .marginRate(15.0)
-                        .totalAmount(28000000L)
+                        .totalAmount(28000000)
                         .isFinal(true)
                         .build();
                 estimateRepository.save(est2);
@@ -125,8 +127,9 @@ public class DummyDataLoader implements CommandLineRunner {
                         .project(project3)
                         .clientVendor(clientVendor)
                         .authorUser(adminUser)
+                        .version(1)
                         .marginRate(12.0)
-                        .totalAmount(53000000L)
+                        .totalAmount(53000000)
                         .isFinal(true)
                         .build();
                 estimateRepository.save(est3);
@@ -137,8 +140,9 @@ public class DummyDataLoader implements CommandLineRunner {
                         .project(project4)
                         .clientVendor(clientVendor)
                         .authorUser(adminUser)
+                        .version(1)
                         .marginRate(10.0)
-                        .totalAmount(22000000L)
+                        .totalAmount(22000000)
                         .isFinal(true)
                         .build();
                 estimateRepository.save(est4);
