@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FileSpreadsheet, Calculator, FolderGit2, HardDrive, Settings, Moon, Sun, LogOut, User, X, BarChart3, History } from 'lucide-react';
+import { LayoutDashboard, FileSpreadsheet, FolderGit2, HardDrive, Settings, Moon, Sun, LogOut, User, X, BarChart3, History } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 const MENU_ITEMS = [
