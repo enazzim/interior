@@ -307,7 +307,7 @@ export default function Settlement() {
             {/* 최종 견적액 */}
             <div className="glass-panel" style={{ flex: 1, minWidth: '220px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-secondary)' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>최종 견적 총액 (계약금)</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>최종 견적 총액</span>
                 <Receipt size={16} />
               </div>
               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>

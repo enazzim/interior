@@ -63,10 +63,15 @@ public class DashboardService {
         long totalIncome = allIncomes.stream().mapToLong(Income::getAmount).sum();
         long totalExpense = allExpenses.stream().mapToLong(Expense::getAmount).sum();
 
-        // 각 현장별 최종 견적서(isFinal 또는 가장 최신) 금액의 합계 구하기
+        // 각 현장별 최종 견적서(isFinal 또는 가장 최신) 금액의 합계 구하기 (단, 수주/공사중/완료 등 계약 확정 현장만 실적 집계)
         Map<Long, Estimate> latestEstimateMap = new HashMap<>();
         for (Estimate est : allEstimates) {
             Long pid = est.getProject().getProjectId();
+            String st = est.getProject().getStatus();
+            // 견적중 / ESTIMATING 상태는 아직 계약 전이므로 실적 매출/마진 합산에서 제외
+            if ("견적중".equals(st) || "ESTIMATING".equalsIgnoreCase(st)) {
+                continue;
+            }
             if (!latestEstimateMap.containsKey(pid) || est.getCreatedAt().isAfter(latestEstimateMap.get(pid).getCreatedAt())) {
                 latestEstimateMap.put(pid, est);
             }
@@ -143,6 +148,11 @@ public class DashboardService {
         List<DashboardStatsDTO.MarginRanking> allMargins = new ArrayList<>();
 
         for (Project proj : allProjects) {
+            String status = proj.getStatus();
+            // 아직 계약되지 않은 '견적중' 현장은 미수금 분석 및 확정 마진율 랭킹에서 제외
+            if ("견적중".equals(status) || "ESTIMATING".equalsIgnoreCase(status)) {
+                continue;
+            }
             Estimate latestEst = latestEstimateMap.get(proj.getProjectId());
             long estAmt = latestEst != null ? latestEst.getTotalAmount() : 0L;
             long incAmt = allIncomes.stream()
