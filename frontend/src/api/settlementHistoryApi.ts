@@ -22,20 +22,20 @@ export interface SettlementHistoryResponse {
 const MOCK_BY_YEAR: Record<number, SettlementHistoryResponse> = {
   2026: {
     year: 2026,
-    totalProjects: 5,
-    totalRevenue: 138000000,
-    totalExpense: 98000000,
-    netProfit: 40000000,
-    profitMargin: 29.0,
+    totalProjects: 4,
+    totalRevenue: 104062000,
+    totalExpense: 73743400,
+    netProfit: 30318600,
+    profitMargin: 29.1,
     items: [
       {
         projectId: 1,
         projectName: '반포 자이 아파트 인테리어',
         clientName: '김철수 고객님',
         status: '견적중',
-        totalAmount: 35000000,
-        expenseAmount: 25000000,
-        netProfit: 10000000,
+        totalAmount: 1062000,
+        expenseAmount: 743400,
+        netProfit: 318600,
         completionDate: '2026-06-15',
       },
       {
