@@ -1,0 +1,23 @@
+# Secrets & Credentials
+*.pem
+*.csv
+
+# Environment & Config
+.env
+.env.local
+
+# Logs & Temp
+*.log
+*.txt
+err.txt
+log.txt
+.DS_Store
+Thumbs.db
+
+# Build & Dependencies
+**/node_modules
+**/dist
+**/build
+**/out
+**/target
+**/.gradle

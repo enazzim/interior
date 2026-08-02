@@ -1,0 +1,275 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Light Mode (기본) - 깨끗하고 전문적인 느낌 */
+  --bg-primary: #f4f6f8;
+  --bg-secondary: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --accent-color: #3b82f6; /* 신뢰감 있는 블루 */
+  --accent-hover: #2563eb;
+  --border-color: #e2e8f0;
+  
+  /* Glassmorphism Effect */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+}
+
+[data-theme="dark"] {
+  /* Dark Mode (다크 모드) - 세련되고 프리미엄한 느낌 */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --accent-color: #60a5fa; /* 다크모드에 어울리는 밝은 블루 */
+  --accent-hover: #93c5fd;
+  --border-color: #334155;
+
+  /* Glassmorphism Effect for Dark */
+  --glass-bg: rgba(30, 41, 59, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* 드롭다운 (select/option) 다크/라이트모드 호환성 스타일 */
+select option {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] select option {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.4s ease, color 0.4s ease; /* 부드러운 테마 전환 애니메이션 */
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+main {
+  min-width: 0;
+}
+
+.layout-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* 프리미엄 글래스모피즘 패널 유틸리티 */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 16px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+}
+
+/* 마이크로 애니메이션: 호버 시 살짝 떠오르는 효과 */
+.glass-panel:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* 공통 버튼 스타일 */
+.btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: var(--accent-color);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-hover);
+  transform: scale(1.02);
+}
+
+/* 텍스트 유틸리티 */
+.text-muted {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* 반응형 모바일 토글 메뉴 스타일 */
+@media (max-width: 768px) {
+  /* 화면 전체 가로스크롤 방지 */
+  html, body, #root, .layout-container {
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
+    min-width: 0 !important;
+    position: relative !important;
+  }
+  
+  main {
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
+    min-width: 0 !important;
+    padding: 0.5rem !important;
+    box-sizing: border-box !important;
+  }
+
+  /* PC 레이아웃에서 모바일 레이아웃으로 변경 */
+  .layout-container {
+    flex-direction: column !important;
+    padding: 0.5rem !important;
+    gap: 0.5rem !important;
+  }
+
+  /* 사이드바 기본 숨김 및 절대 좌표 오버레이로 전환 */
+  aside.glass-panel {
+    position: fixed !important;
+    top: 0;
+    left: -280px; /* 평소엔 왼쪽 밖으로 숨김 */
+    height: 100vh;
+    z-index: 1001;
+    border-radius: 0 16px 16px 0 !important;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2) !important;
+    
+    /* 1. 화면 밖으로 나간 드로어가 가로스크롤바를 유발하지 않도록 숨김 처리 */
+    visibility: hidden !important;
+  }
+
+  /* 사이드바 활성화 상태 */
+  aside.glass-panel.mobile-active {
+    left: 0 !important;
+    visibility: visible !important;
+  }
+
+  /* 모바일 헤더 활성화 */
+  .mobile-header {
+    display: flex !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* 모바일 닫기 버튼 활성화 */
+  .mobile-close-btn {
+    display: block !important;
+  }
+
+  /* ─── 페이지 공통 헤더 모바일 폰트/레이아웃 패치 ─── */
+  header.glass-panel {
+    padding: 1rem !important;
+    margin-bottom: 1rem !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+  }
+
+  header.glass-panel h1 {
+    font-size: 1.05rem !important;
+    line-height: 1.4 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.25rem !important;
+    width: 100% !important;
+  }
+  
+  header.glass-panel h1 span {
+    font-size: 0.95rem !important;
+    display: inline-block !important;
+  }
+
+  /* 뒤로가기 버튼 등이 있을 때 정렬 */
+  header.glass-panel > div {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+
+  header.glass-panel button {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* ─── 테이블 모바일 가로스크롤 패치 ─── */
+  .glass-panel:has(table) {
+    overflow-x: auto !important;
+    width: 100% !important;
+    padding: 1rem !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 650px !important;
+    width: 100% !important;
+  }
+
+  /* 모바일 테이블 텍스트 찌그러짐/줄바꿈 깨짐 절대 방지 */
+  table th, table td {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+  }
+
+  /* ─── 필터 패널 세로 스택 패치 ─── */
+  .filter-panel {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+    padding: 1rem 1.25rem !important;
+  }
+
+  .filter-panel > div {
+    width: 100% !important;
+  }
+
+  /* ─── 모바일 전용 탭 바 노출 ─── */
+  .mobile-tab-bar {
+    display: flex !important;
+  }
+
+  /* ─── CRM 보드판 모바일 탭 필터링 패치 ─── */
+  .board-container {
+    overflow-x: hidden !important; /* 모바일 탭 전환 방식이므로 가로스크롤 원천 제거 */
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 모바일에서 모든 컬럼 카드를 숨김 */
+  .board-column-card {
+    display: none !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* 활성화된 모바일 컬럼 카드만 단독 노출 */
+  .board-column-card.active-mobile-col {
+    display: flex !important;
+  }
+
+  /* 모바일 내비게이션 탭 버튼 크기 및 찌그러짐 방지 */
+  div[style*="display: flex"][style*="gap: 0.5rem"] {
+    flex-wrap: wrap !important;
+  }
+}

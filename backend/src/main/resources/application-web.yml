@@ -1,0 +1,13 @@
+app:
+  storage:
+    type: s3
+
+cloud:
+  aws:
+    s3:
+      bucket: interior-images-911788523338-ap-northeast-2-an
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID:YOUR_AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_ACCESS_KEY:YOUR_AWS_SECRET_KEY}
+    region:
+      static: ap-northeast-2

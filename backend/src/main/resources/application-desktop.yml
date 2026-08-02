@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:sqlite:${user.home}/AppData/Roaming/InteriorERP/interior.db
+    driver-class-name: org.sqlite.JDBC
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+server:
+  port: 38080
+
+app:
+  storage:
+    type: local
