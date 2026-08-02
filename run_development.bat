@@ -20,7 +20,7 @@ if %ERRORLEVEL% neq 0 (
 
 echo.
 echo Step 2: Launching Backend Server in background...
-start "Interior-ERP-Backend" java -jar build/libs/backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+start "Interior-ERP-Backend" java -jar build/libs/backend-interior-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
 
 echo.
 echo Step 3: Navigating to Frontend...
