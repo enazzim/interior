@@ -31,6 +31,12 @@ public class SettlementHistoryController {
         List<SettlementHistoryDTO.ProjectSettlementSummary> summaries = new ArrayList<>();
         
         projectRepository.findAll().forEach(p -> {
+            // DB 프로젝트 생성 연도 필터링
+            int projectYear = p.getCreatedAt() != null ? p.getCreatedAt().getYear() : 2026;
+            if (year != null && projectYear != targetYear) {
+                return;
+            }
+
             // 키워드 필터링 적용
             if (keyword != null && !keyword.trim().isEmpty()) {
                 String kw = keyword.trim().toLowerCase();
@@ -59,7 +65,7 @@ public class SettlementHistoryController {
                     .totalAmount(total)
                     .expenseAmount(expense)
                     .netProfit(net)
-                    .completionDate(targetYear + "-06-15")
+                    .completionDate(p.getCreatedAt() != null ? p.getCreatedAt().toLocalDate().toString() : targetYear + "-06-15")
                     .build());
         });
 
