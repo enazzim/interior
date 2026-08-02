@@ -6,6 +6,8 @@ export interface ProjectSettlementSummary {
   clientName: string;
   status: string; // '견적중' | '수주' | '공사중' | '완료'
   totalAmount: number;
+  collectedAmount?: number;
+  discountAmount?: number;
   expenseAmount: number;
   netProfit: number;
   completionDate: string;

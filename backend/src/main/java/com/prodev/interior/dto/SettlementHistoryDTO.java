@@ -31,6 +31,8 @@ public class SettlementHistoryDTO {
         private String clientName;
         private String status;
         private Long totalAmount;
+        private Long collectedAmount;
+        private Long discountAmount;
         private Long expenseAmount;
         private Long netProfit;
         private String completionDate;

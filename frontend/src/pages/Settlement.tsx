@@ -252,10 +252,18 @@ export default function Settlement() {
   // 연산 변수들
   const latestEstimateAmount = estimates.length > 0 ? estimates[0].totalAmount : 0;
   const totalIncomeAmount = incomes.reduce((sum, item) => sum + item.amount, 0);
+  const totalDiscountAmount = incomes.reduce((sum, item) => sum + (item.discount || 0), 0);
   const totalExpenseAmount = expenses.reduce((sum, item) => sum + item.amount, 0);
-  const marginAmount = latestEstimateAmount - totalExpenseAmount;
-  const marginRate = latestEstimateAmount > 0 ? (marginAmount / latestEstimateAmount) * 100 : 0;
-  const collectionRate = latestEstimateAmount > 0 ? (totalIncomeAmount / latestEstimateAmount) * 100 : 0;
+  
+  // 실제 계약(수주) 금액 (계약 상태이거나 수금이 진행된 경우)
+  const isContracted = selectedProject?.status === '수주' || selectedProject?.status === '공사중' || selectedProject?.status === '완료';
+  const contractAmount = isContracted ? latestEstimateAmount : 0;
+
+  // 순수익 = (수금액이 존재하면 실제 수금액, 없으면 계약금액) - 지출액
+  const effectiveRevenue = totalIncomeAmount > 0 ? totalIncomeAmount : contractAmount;
+  const marginAmount = effectiveRevenue - totalExpenseAmount;
+  const marginRate = effectiveRevenue > 0 ? (marginAmount / effectiveRevenue) * 100 : 0;
+  const collectionRate = contractAmount > 0 ? (totalIncomeAmount / contractAmount) * 100 : (latestEstimateAmount > 0 ? (totalIncomeAmount / latestEstimateAmount) * 100 : 0);
   // 6번: 미수금 전체 현황 (모든 현장)
   const [showArPanel, setShowArPanel] = useState(false);
 
@@ -301,62 +309,76 @@ export default function Settlement() {
       {selectedProject && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           
-          {/* 1. KPI 대시보드 카드 섹션 */}
-          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+          {/* 1. KPI 대시보드 카드 섹션 (5대 지표 체계화) */}
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             
-            {/* 최종 견적액 */}
-            <div className="glass-panel" style={{ flex: 1, minWidth: '220px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {/* 1. 견적 총액 */}
+            <div className="glass-panel" style={{ flex: 1, minWidth: '180px', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-secondary)' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>최종 견적 총액</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>견적 총액</span>
                 <Receipt size={16} />
               </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                 ₩ {latestEstimateAmount.toLocaleString()}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                * 가장 최근 등록된 견적서 기준
+                * 작성된 최근 견적서 합계
               </div>
             </div>
 
-            {/* 실제 지출 총액 */}
-            <div className="glass-panel" style={{ flex: 1, minWidth: '220px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {/* 2. 실제 계약금액 (수주금액) */}
+            <div className="glass-panel" style={{ flex: 1, minWidth: '180px', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-secondary)' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>실제 지출 총액 (원가)</span>
-                <Wallet size={16} />
+                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>실제 계약금액 (수주)</span>
+                <Landmark size={16} style={{ color: '#3b82f6' }} />
               </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f59e0b' }}>
+              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: isContracted ? '#3b82f6' : 'var(--text-secondary)' }}>
+                ₩ {contractAmount.toLocaleString()}
+              </div>
+              <div style={{ fontSize: '0.75rem', color: isContracted ? '#3b82f6' : 'var(--text-secondary)' }}>
+                {isContracted ? '✓ 계약 체결 확정' : '아직 미계약(견적중)'}
+              </div>
+            </div>
+
+            {/* 3. 실제 수금액 (네고/할인) */}
+            <div className="glass-panel" style={{ flex: 1, minWidth: '180px', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-secondary)' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>실제 수금액</span>
+                <Wallet size={16} style={{ color: '#10b981' }} />
+              </div>
+              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#10b981' }}>
+                ₩ {totalIncomeAmount.toLocaleString()}
+              </div>
+              <div style={{ fontSize: '0.75rem', color: totalDiscountAmount > 0 ? '#ef4444' : 'var(--text-secondary)' }}>
+                {totalDiscountAmount > 0 ? `* 할인/네고: -₩${totalDiscountAmount.toLocaleString()}` : `수금률: ${collectionRate.toFixed(1)}%`}
+              </div>
+            </div>
+
+            {/* 4. 실제 지출 총액 (원가) */}
+            <div className="glass-panel" style={{ flex: 1, minWidth: '180px', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-secondary)' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>실제 지출 (원가)</span>
+                <Wallet size={16} style={{ color: '#f59e0b' }} />
+              </div>
+              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#f59e0b' }}>
                 ₩ {totalExpenseAmount.toLocaleString()}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                * 자재상/외주 지급 지출액 누계
+                * 자재상/외주 지출 누계
               </div>
             </div>
 
-            {/* 최종 마진율 */}
-            <div className="glass-panel" style={{ flex: 1, minWidth: '220px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {/* 5. 최종 정산 순이익 */}
+            <div className="glass-panel" style={{ flex: 1, minWidth: '180px', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-secondary)' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>최종 마진 현황 (마진율)</span>
-                <ArrowDownRight size={16} />
+                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>최종 순이익</span>
+                <ArrowDownRight size={16} style={{ color: marginAmount >= 0 ? '#8b5cf6' : '#ef4444' }} />
               </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: marginRate >= 0 ? '#3b82f6' : '#ef4444' }}>
-                {marginRate >= 0 ? '+' : ''}{marginRate.toFixed(1)} %
+              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: marginAmount >= 0 ? '#8b5cf6' : '#ef4444' }}>
+                ₩ {marginAmount.toLocaleString()}
               </div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                순수익: ₩ {marginAmount.toLocaleString()}
-              </div>
-            </div>
-
-            {/* 수금 진척률 */}
-            <div className="glass-panel" style={{ flex: 1, minWidth: '220px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-secondary)' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>수금 진척도 (수금률)</span>
-                <Landmark size={16} />
-              </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#10b981' }}>
-                {collectionRate.toFixed(1)} %
-              </div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                수금액: ₩ {totalIncomeAmount.toLocaleString()}
+              <div style={{ fontSize: '0.75rem', color: marginAmount >= 0 ? '#8b5cf6' : '#ef4444' }}>
+                이익률: {marginRate >= 0 ? '+' : ''}{marginRate.toFixed(1)} %
               </div>
             </div>
 
