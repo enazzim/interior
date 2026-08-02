@@ -1,6 +1,7 @@
 # Secrets & Credentials
 *.pem
 *.csv
+deploy_aws.bat
 
 # Environment & Config
 .env

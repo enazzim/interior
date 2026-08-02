@@ -561,7 +561,7 @@ export default function EstimateBuilder() {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '250px', overflowY: 'auto' }}>
                   {estimateResult.items.map(item => {
-                    const isLabor = item.itemType === 'LABOR';
+                    const isLabor = item.itemType === 'LABOR' || (item.laborCost > 0 && item.materialCost === 0) || item.materialName.includes('인건비');
                     const itemTotalAmount = item.customerUnitPrice * Math.ceil(item.calculatedQty);
 
                     return (

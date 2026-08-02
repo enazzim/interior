@@ -27,6 +27,9 @@ export interface EstimateItemResponse {
   materialCost: number;  // 원가
   laborCost: number;     // 인건비
   customerUnitPrice: number; // 청구 단가
+  itemType?: string;
+  distributionUnit?: string;
+  specification?: string;
 }
 
 export interface EstimateResponse {
