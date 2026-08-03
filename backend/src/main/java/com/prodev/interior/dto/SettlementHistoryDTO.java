@@ -16,6 +16,7 @@ public class SettlementHistoryDTO {
     private List<Integer> availableYears;
     private Integer totalProjects;
     private Long totalRevenue;
+    private Long estimatedRevenue;
     private Long totalExpense;
     private Long netProfit;
     private Double profitMargin;

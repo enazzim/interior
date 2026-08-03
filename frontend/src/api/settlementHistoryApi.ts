@@ -18,6 +18,7 @@ export interface SettlementHistoryResponse {
   availableYears?: number[];
   totalProjects: number;
   totalRevenue: number;
+  estimatedRevenue?: number;
   totalExpense: number;
   netProfit: number;
   profitMargin: number;

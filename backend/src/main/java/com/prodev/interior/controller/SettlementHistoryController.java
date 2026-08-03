@@ -36,12 +36,8 @@ public class SettlementHistoryController {
         
         int targetYear = historyGuardrail.sanitizeYear(year);
 
-        // DB에 존재하는 모든 계약 확정 프로젝트의 실제 연도 목록 동적 추출 (중복 제거 & 최신순 정렬)
+        // DB에 존재하는 모든 프로젝트의 실제 연도 목록 동적 추출 (중복 제거 & 최신순 정렬)
         List<Integer> availableYears = projectRepository.findAll().stream()
-                .filter(p -> {
-                    String st = p.getStatus();
-                    return !"견적중".equals(st) && !"ESTIMATING".equalsIgnoreCase(st);
-                })
                 .map(p -> p.getCreatedAt() != null ? p.getCreatedAt().getYear() : 2026)
                 .distinct()
                 .sorted(Comparator.reverseOrder())
@@ -54,12 +50,6 @@ public class SettlementHistoryController {
         List<SettlementHistoryDTO.ProjectSettlementSummary> summaries = new ArrayList<>();
         
         projectRepository.findAll().forEach(p -> {
-            // 1. 아직 계약 체결되지 않은 '견적중' / 'ESTIMATING' 현장은 정산 이력에서 제외
-            String st = p.getStatus();
-            if ("견적중".equals(st) || "ESTIMATING".equalsIgnoreCase(st)) {
-                return;
-            }
-
             // DB 프로젝트 생성 연도 필터링
             int projectYear = p.getCreatedAt() != null ? p.getCreatedAt().getYear() : 2026;
             if (year != null && projectYear != targetYear) {
@@ -91,19 +81,23 @@ public class SettlementHistoryController {
             // 실제 지출 원가 누계
             List<Expense> expenses = expenseRepository.findByProjectProjectIdOrderByExpenseDateDesc(p.getProjectId());
             long expense = expenses.stream().mapToLong(Expense::getAmount).sum();
-            if (expense == 0L && total > 0) {
-                expense = Math.round(total * 0.7); // 지출 미등록 시 예상 원가 약 70%
+            
+            String st = p.getStatus() != null ? p.getStatus() : "견적중";
+            boolean isEstimating = "견적중".equals(st) || "ESTIMATING".equalsIgnoreCase(st);
+
+            if (expense == 0L && total > 0 && !isEstimating) {
+                expense = Math.round(total * 0.7); // 수주/공사중/완료 현장 중 지출 미등록 시 예상 원가 약 70%
             }
 
             // 실수금액이 존재하면 실수금액 기준, 없으면 견적 총액 기준으로 순이익 산출
             long effectiveRevenue = collected > 0 ? collected : total;
-            long net = effectiveRevenue - expense;
+            long net = isEstimating ? 0L : (effectiveRevenue - expense);
             
             summaries.add(SettlementHistoryDTO.ProjectSettlementSummary.builder()
                     .projectId(p.getProjectId())
                     .projectName(p.getProjectName())
                     .clientName(p.getClientVendor() != null ? p.getClientVendor().getVendorName() : "김철수 고객님")
-                    .status(p.getStatus() != null ? p.getStatus() : "수주")
+                    .status(st)
                     .totalAmount(total)
                     .collectedAmount(collected)
                     .discountAmount(discount)
@@ -113,8 +107,19 @@ public class SettlementHistoryController {
                     .build());
         });
 
-        long totalRevenue = summaries.stream().mapToLong(s -> s.getCollectedAmount() != null && s.getCollectedAmount() > 0 ? s.getCollectedAmount() : s.getTotalAmount()).sum();
-        long totalExpense = summaries.stream().mapToLong(SettlementHistoryDTO.ProjectSettlementSummary::getExpenseAmount).sum();
+        // 확정 계약 현장만 상단 실적 카드(확정 매출, 확정 지출, 확정 순이익)에 합산
+        List<SettlementHistoryDTO.ProjectSettlementSummary> confirmedItems = summaries.stream()
+                .filter(s -> !"견적중".equals(s.getStatus()) && !"ESTIMATING".equalsIgnoreCase(s.getStatus()))
+                .collect(Collectors.toList());
+
+        // 미계약 견적중 현장의 가계산 총액 합계 (예상 파이프라인)
+        long estimatedRevenue = summaries.stream()
+                .filter(s -> "견적중".equals(s.getStatus()) || "ESTIMATING".equalsIgnoreCase(s.getStatus()))
+                .mapToLong(SettlementHistoryDTO.ProjectSettlementSummary::getTotalAmount)
+                .sum();
+
+        long totalRevenue = confirmedItems.stream().mapToLong(s -> s.getCollectedAmount() != null && s.getCollectedAmount() > 0 ? s.getCollectedAmount() : s.getTotalAmount()).sum();
+        long totalExpense = confirmedItems.stream().mapToLong(SettlementHistoryDTO.ProjectSettlementSummary::getExpenseAmount).sum();
         long netProfit = totalRevenue - totalExpense;
         double margin = totalRevenue > 0 ? (double) netProfit / totalRevenue * 100.0 : 0.0;
 
@@ -123,6 +128,7 @@ public class SettlementHistoryController {
                 .availableYears(availableYears)
                 .totalProjects(summaries.size())
                 .totalRevenue(totalRevenue)
+                .estimatedRevenue(estimatedRevenue)
                 .totalExpense(totalExpense)
                 .netProfit(netProfit)
                 .profitMargin(Math.round(margin * 10.0) / 10.0)

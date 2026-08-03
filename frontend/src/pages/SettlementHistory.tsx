@@ -134,51 +134,61 @@ export default function SettlementHistory() {
         <div>
           <h1 style={{ fontSize: '1.875rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-primary)' }}>
             <History style={{ color: 'var(--accent-color)' }} />
-            정산 이력 & 아카이브
+            현장 이력 현황
           </h1>
           <p style={{ color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-            전체 현장(견적중, 수주, 공사중, 완료)의 손익 이력 및 연도별 집계 데이터를 다차원으로 분석합니다.
+            전체 현장(견적중, 수주, 공사중, 완료)의 진행 및 손익 이력을 연도별로 통합 조망합니다.
           </p>
         </div>
 
-        {/* Summary Metrics Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
-          <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '12px' }}>
+        {/* Summary Metrics Cards (확정 실적 및 미계약 파이프라인 구분) */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem' }}>
+          <div className="glass-panel" style={{ padding: '1.25rem', borderRadius: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>연간 관리 현장 수</span>
-              <CheckCircle2 size={20} style={{ color: '#10B981' }} />
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>연간 전체 현장 수</span>
+              <CheckCircle2 size={18} style={{ color: '#10B981' }} />
             </div>
-            <div style={{ fontSize: '1.75rem', fontWeight: 700, marginTop: '0.5rem', color: 'var(--text-primary)' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 700, marginTop: '0.4rem', color: 'var(--text-primary)' }}>
               {historyData?.totalProjects || 0} 개 현장
             </div>
           </div>
 
-          <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '12px' }}>
+          <div className="glass-panel" style={{ padding: '1.25rem', borderRadius: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>연간 총 매출액</span>
-              <DollarSign size={20} style={{ color: '#3B82F6' }} />
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>연간 확정 매출액</span>
+              <DollarSign size={18} style={{ color: '#3B82F6' }} />
             </div>
-            <div style={{ fontSize: '1.75rem', fontWeight: 700, marginTop: '0.5rem', color: '#3B82F6' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 700, marginTop: '0.4rem', color: '#3B82F6' }}>
               ₩{historyData?.totalRevenue.toLocaleString() || 0}
             </div>
           </div>
 
-          <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '12px' }}>
+          <div className="glass-panel" style={{ padding: '1.25rem', borderRadius: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>연간 총 집행 지출</span>
-              <TrendingUp size={20} style={{ color: '#EF4444' }} />
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>미계약 견적 파이프라인</span>
+              <DollarSign size={18} style={{ color: 'var(--accent-color)' }} />
             </div>
-            <div style={{ fontSize: '1.75rem', fontWeight: 700, marginTop: '0.5rem', color: '#EF4444' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 700, marginTop: '0.4rem', color: 'var(--accent-color)' }}>
+              ₩{historyData?.estimatedRevenue?.toLocaleString() || 0}
+            </div>
+          </div>
+
+          <div className="glass-panel" style={{ padding: '1.25rem', borderRadius: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>연간 총 집행 지출</span>
+              <TrendingUp size={18} style={{ color: '#EF4444' }} />
+            </div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 700, marginTop: '0.4rem', color: '#EF4444' }}>
               ₩{historyData?.totalExpense.toLocaleString() || 0}
             </div>
           </div>
 
-          <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '12px' }}>
+          <div className="glass-panel" style={{ padding: '1.25rem', borderRadius: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>연간 누적 순이익 (이익률)</span>
-              <PieChart size={20} style={{ color: '#8B5CF6' }} />
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>확정 누적 순이익 (이익률)</span>
+              <PieChart size={18} style={{ color: '#8B5CF6' }} />
             </div>
-            <div style={{ fontSize: '1.75rem', fontWeight: 700, marginTop: '0.5rem', color: '#8B5CF6' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 700, marginTop: '0.4rem', color: '#8B5CF6' }}>
               ₩{historyData?.netProfit.toLocaleString() || 0} ({historyData?.profitMargin || 0}%)
             </div>
           </div>

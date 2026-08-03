@@ -7,7 +7,7 @@ const MENU_ITEMS = [
   { path: '/analytics', label: '상세 경영 지표', icon: <BarChart3 size={20} /> },
   { path: '/projects', label: '현장 목록 관리', icon: <FolderGit2 size={20} /> },
   { path: '/settlements', label: '정산 및 매입 관리', icon: <FileSpreadsheet size={20} /> },
-  { path: '/settlement-history', label: '정산 이력 아카이브', icon: <History size={20} /> },
+  { path: '/settlement-history', label: '현장 이력 현황', icon: <History size={20} /> },
   { path: '/master', label: '마스터 데이터 관리', icon: <HardDrive size={20} /> },
   { path: '/settings', label: '시스템 설정', icon: <Settings size={20} /> },
 ];
