@@ -224,7 +224,9 @@ export default function EstimateBuilder() {
   };
 
   const handleDownloadImage = (imageUrl: string, originalFileName: string) => {
-    const backendBaseUrl = window.location.protocol + '//' + window.location.hostname + ':38080';
+    const backendBaseUrl = (window as any).electronAPI
+      ? 'http://localhost:38080'
+      : window.location.origin;
     const downloadUrl = `${backendBaseUrl}/api/files/download?url=${encodeURIComponent(imageUrl)}&filename=${encodeURIComponent(originalFileName)}`;
     window.location.href = downloadUrl;
   };
