@@ -1,133 +1,38 @@
 package com.prodev.interior.config;
 
-import com.prodev.interior.domain.*;
-import com.prodev.interior.domain.Process;
-import com.prodev.interior.repository.*;
+import com.prodev.interior.repository.CompanyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.stereotype.Component;
+
+import javax.sql.DataSource;
 
 @Component
 @RequiredArgsConstructor
 public class DummyDataLoader implements CommandLineRunner {
 
     private final CompanyRepository companyRepository;
-    private final UserRepository userRepository;
-    private final MaterialRepository materialRepository;
-    private final VendorRepository vendorRepository;
-    private final ProcessRepository processRepository;
-    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+    private final DataSource dataSource;
 
     @Override
     public void run(String... args) throws Exception {
-        // 1. 기본 회사 데이터 셋업
-        Company company = null;
-        if (companyRepository.count() == 0) {
-            company = Company.builder()
-                    .companyName("프로데브 인테리어")
-                    .businessNumber("123-45-67890")
-                    .address("서울시 강남구 테헤란로 123")
-                    .subscriptionPlan("PREMIUM")
-                    .tel("02-555-1234")
-                    .fax("02-555-5678")
-                    .businessType("서비스 / 건설")
-                    .businessItem("실내건축 / 인테리어 디자인")
-                    .ceoName("이해동")
-                    .build();
-            companyRepository.save(company);
-        } else {
-            company = companyRepository.findAll().get(0);
+        // DB에 이미 데이터가 있으면 시드 쿼리 주입 전면 스킵!
+        if (companyRepository.count() > 0) {
+            System.out.println("ℹ️ [SYSTEM] DB에 이미 기존 데이터가 존재하여 SQL 시드 주입을 안전하게 스킵(Skip)합니다.");
+            return;
         }
 
-        // 2. 관리자 유저 셋업
-        User adminUser = null;
-        if (userRepository.count() == 0) {
-            adminUser = User.builder().company(company).loginId("admin").username("관리자").password(passwordEncoder.encode("1234")).role("ADMIN").build();
-            userRepository.save(adminUser);
-        } else {
-            adminUser = userRepository.findByLoginId("admin").orElse(null);
-            if (adminUser != null && !adminUser.getPassword().startsWith("$2a$")) {
-                adminUser.updateUserInfo(adminUser.getUsername(), passwordEncoder.encode("1234"), adminUser.getRole());
-                userRepository.save(adminUser);
-            }
-        }
-
-        // 3. 데모 거래처 셋업
-        if (vendorRepository.count() == 0) {
-            Vendor clientVendor = Vendor.builder().company(company).vendorName("김철수 고객님").vendorType("CLIENT").businessType("INDIVIDUAL").build();
-            vendorRepository.save(clientVendor);
-
-            Vendor supplier1 = Vendor.builder().company(company).vendorName("을지로 타일나라").vendorType("SUPPLIER").businessType("CORPORATION").build();
-            vendorRepository.save(supplier1);
-
-            Vendor supplier2 = Vendor.builder().company(company).vendorName("한샘 자재상사").vendorType("SUPPLIER").businessType("CORPORATION").build();
-            vendorRepository.save(supplier2);
-
-            Vendor supplier3 = Vendor.builder().company(company).vendorName("개나리 벽지").vendorType("SUPPLIER").businessType("CORPORATION").build();
-            vendorRepository.save(supplier3);
-        }
-
-        // 4. 공정 대분류 셋업
-        Process tileProcess = null;
-        Process wallpaperProcess = null;
-        if (processRepository.count() == 0) {
-            tileProcess = Process.builder().processName("타일공사").sortOrder(1).build();
-            processRepository.save(tileProcess);
-            wallpaperProcess = Process.builder().processName("도배공사").sortOrder(2).build();
-            processRepository.save(wallpaperProcess);
-        } else {
-            java.util.List<Process> procs = processRepository.findAll();
-            tileProcess = procs.stream().filter(p -> p.getProcessName().equals("타일공사")).findFirst().orElse(procs.get(0));
-            wallpaperProcess = procs.stream().filter(p -> p.getProcessName().equals("도배공사")).findFirst().orElse(procs.size() > 1 ? procs.get(1) : procs.get(0));
-        }
-
-        // 5. 자재 및 노무 마스터 데이터 등록
-        if (materialRepository.count() == 0) {
-            Material tile = Material.builder()
-                    .company(company).process(tileProcess)
-                    .materialName("고급 이태리 포세린 타일 (600x600)")
-                    .standardUnit("㎡").distributionUnit("Box")
-                    .conversionRate(1.44)
-                    .purchasePrice(35000).laborPrice(0)
-                    .specification("600x600")
-                    .itemType(ItemType.MATERIAL)
-                    .build();
-            materialRepository.save(tile);
-
-            Material wallpaper = Material.builder()
-                    .company(company).process(wallpaperProcess)
-                    .materialName("LG 하우시스 실크 벽지")
-                    .standardUnit("㎡").distributionUnit("Roll")
-                    .conversionRate(16.5)
-                    .purchasePrice(40000).laborPrice(0)
-                    .specification("실크")
-                    .itemType(ItemType.MATERIAL)
-                    .build();
-            materialRepository.save(wallpaper);
-
-            Material tileLabor = Material.builder()
-                    .company(company).process(tileProcess)
-                    .materialName("타일공 시공 인건비")
-                    .standardUnit("일").distributionUnit("일")
-                    .conversionRate(1.0)
-                    .purchasePrice(0).laborPrice(250000)
-                    .specification("기공 1인 기준 (식대 포함)")
-                    .itemType(ItemType.LABOR)
-                    .build();
-            materialRepository.save(tileLabor);
-
-            Material wallpaperLabor = Material.builder()
-                    .company(company).process(wallpaperProcess)
-                    .materialName("도배공 시공 인건비")
-                    .standardUnit("일").distributionUnit("일")
-                    .conversionRate(1.0)
-                    .purchasePrice(0).laborPrice(220000)
-                    .specification("기공 1인 기준")
-                    .itemType(ItemType.LABOR)
-                    .build();
-            materialRepository.save(wallpaperLabor);
-
-            System.out.println("✅ [SYSTEM] 기초 회사 정보 및 마스터 데이터 셋업 완료!");
+        // DB가 완전히 비어있는 극초기 1회만 data.sql 시드 쿼리 직접 실행
+        System.out.println("🌱 [SYSTEM] DB가 빈 상태입니다. data.sql 기초 마스터 시드 쿼리를 직접 실행합니다...");
+        try {
+            ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+            populator.addScript(new ClassPathResource("data.sql"));
+            populator.execute(dataSource);
+            System.out.println("✅ [SYSTEM] data.sql 시드 쿼리 주입이 성공적으로 완료되었습니다!");
+        } catch (Exception e) {
+            System.err.println("⚠️ [SYSTEM] data.sql 시드 실행 중 안내: " + e.getMessage());
         }
     }
 }
