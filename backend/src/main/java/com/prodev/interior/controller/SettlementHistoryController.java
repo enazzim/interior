@@ -85,10 +85,6 @@ public class SettlementHistoryController {
             String st = p.getStatus() != null ? p.getStatus() : "견적중";
             boolean isEstimating = "견적중".equals(st) || "ESTIMATING".equalsIgnoreCase(st);
 
-            if (expense == 0L && total > 0 && !isEstimating) {
-                expense = Math.round(total * 0.7); // 수주/공사중/완료 현장 중 지출 미등록 시 예상 원가 약 70%
-            }
-
             // 실수금액이 존재하면 실수금액 기준, 없으면 견적 총액 기준으로 순이익 산출
             long effectiveRevenue = collected > 0 ? collected : total;
             long net = isEstimating ? 0L : (effectiveRevenue - expense);
