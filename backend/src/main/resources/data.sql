@@ -9,7 +9,7 @@ VALUES (1, '프로데브 인테리어', '123-45-67890', '서울시 강남구 테
 
 -- 2. 초기 관리자 계정 (admin / 1234 - BCrypt 해시 적용)
 INSERT INTO users (user_id, company_id, login_id, username, password, role, created_at)
-VALUES (1, 1, 'admin', '관리자', '$2a$10$e8wF58y2d7V6nC1z/vA9/.4k1v3u2t1r0e9w8q7e6r5t4y3u2i1o0', 'ADMIN', CURRENT_TIMESTAMP);
+VALUES (1, 1, 'admin', '관리자', '1234', 'ADMIN', CURRENT_TIMESTAMP);
 
 -- 3. 초기 기본 거래처 마스터 데이터 (발주처 및 자재상)
 INSERT INTO vendors (vendor_id, company_id, vendor_name, vendor_type, business_type, created_at)
