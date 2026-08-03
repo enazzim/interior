@@ -13,6 +13,8 @@ const MENU_ITEMS = [
 ];
 
 
+import { checkServerSessionApi } from '../../api/userApi';
+
 export default function Sidebar({ isMobileOpen, onClose }: { isMobileOpen?: boolean; onClose?: () => void }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -29,17 +31,52 @@ export default function Sidebar({ isMobileOpen, onClose }: { isMobileOpen?: bool
     }
 
     const userStr = localStorage.getItem('currentUser');
-    if (userStr) {
-      try {
-        setCurrentUser(JSON.parse(userStr));
-      } catch (e) {
-        console.error(e);
+    const loginTimestampStr = localStorage.getItem('loginTimestamp');
+    const savedBootId = localStorage.getItem('serverBootId');
+
+    if (!userStr) {
+      navigate('/login');
+      return;
+    }
+
+    // 1. 8시간 세션 타임아웃 검증 (8시간 = 28,800,000ms)
+    const SESSION_TIMEOUT_MS = 8 * 60 * 60 * 1000;
+    if (loginTimestampStr) {
+      const elapsed = Date.now() - Number(loginTimestampStr);
+      if (elapsed > SESSION_TIMEOUT_MS) {
+        alert('로그인 세션 만료 시간이 지났습니다 (8시간). 다시 로그인해 주세요.');
+        handleLogout();
+        return;
       }
     }
+
+    try {
+      setCurrentUser(JSON.parse(userStr));
+    } catch (e) {
+      console.error(e);
+    }
+
+    // 2. 백엔드 서버 재부팅/재빌드 감지 (서버 재기동 시 bootId가 변경됨)
+    checkServerSessionApi()
+      .then((sessionInfo) => {
+        if (sessionInfo && sessionInfo.bootId) {
+          if (savedBootId && savedBootId !== 'legacy' && savedBootId !== sessionInfo.bootId) {
+            alert('백엔드 서버가 재시작되어 로그인 세션이 초기화되었습니다. 다시 로그인해 주세요.');
+            handleLogout();
+            return;
+          }
+          localStorage.setItem('serverBootId', sessionInfo.bootId);
+        }
+      })
+      .catch((err) => {
+        console.warn('서버 세션 상태 검증 실패:', err);
+      });
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('loginTimestamp');
+    localStorage.removeItem('serverBootId');
     navigate('/login');
   };
 

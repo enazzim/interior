@@ -19,8 +19,10 @@ export default function Login() {
     setLoading(true);
     setError('');
     try {
-      const user = await loginUser(loginId, password);
-      localStorage.setItem('currentUser', JSON.stringify(user));
+      const res = await loginUser(loginId, password);
+      localStorage.setItem('currentUser', JSON.stringify(res.user));
+      localStorage.setItem('loginTimestamp', (res.loginTimestamp || Date.now()).toString());
+      localStorage.setItem('serverBootId', res.bootId || '');
       navigate('/');
     } catch (err: any) {
       if (err.response && err.response.status === 401) {

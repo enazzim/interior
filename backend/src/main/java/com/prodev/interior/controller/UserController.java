@@ -8,7 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.prodev.interior.dto.LoginRequest;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
@@ -16,6 +19,10 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+
+    // 서버가 재부팅/재빌드될 때마다 새로 생성되는 서버 고유 구동 토큰
+    private static final String SERVER_BOOT_ID = UUID.randomUUID().toString();
+    private static final long SESSION_TIMEOUT_MS = 8 * 60 * 60 * 1000L; // 8시간 세션 만료
 
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
@@ -43,11 +50,25 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/session-check")
+    public ResponseEntity<?> checkSession() {
+        Map<String, Object> res = new HashMap<>();
+        res.put("bootId", SERVER_BOOT_ID);
+        res.put("serverTime", System.currentTimeMillis());
+        res.put("sessionTimeoutMs", SESSION_TIMEOUT_MS);
+        return ResponseEntity.ok(res);
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
             User user = userService.login(loginRequest.getLoginId(), loginRequest.getPassword());
-            return ResponseEntity.ok(user);
+            Map<String, Object> response = new HashMap<>();
+            response.put("user", user);
+            response.put("bootId", SERVER_BOOT_ID);
+            response.put("loginTimestamp", System.currentTimeMillis());
+            response.put("expiresIn", SESSION_TIMEOUT_MS);
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(401).body(e.getMessage());
         }
