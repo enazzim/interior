@@ -175,11 +175,21 @@ export default function SettlementHistory() {
 
           <div className="glass-panel" style={{ padding: '1.25rem', borderRadius: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>연간 총 집행 지출</span>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight 600 }}>연간 확정 집행 지출</span>
               <TrendingUp size={18} style={{ color: '#EF4444' }} />
             </div>
             <div style={{ fontSize: '1.5rem', fontWeight: 700, marginTop: '0.4rem', color: '#EF4444' }}>
               ₩{historyData?.totalExpense.toLocaleString() || 0}
+            </div>
+          </div>
+
+          <div className="glass-panel" style={{ padding: '1.25rem', borderRadius: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>계약현장 예정 원가 (가안)</span>
+              <TrendingUp size={18} style={{ color: '#F59E0B' }} />
+            </div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 700, marginTop: '0.4rem', color: '#F59E0B' }}>
+              ₩{historyData?.plannedExpense?.toLocaleString() || 0}
             </div>
           </div>
 
@@ -363,7 +373,7 @@ export default function SettlementHistory() {
                     <th style={{ padding: '0.75rem 1rem' }}>고객 / 거래처</th>
                     <th style={{ padding: '0.75rem 1rem' }}>상태</th>
                     <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>총 공사금액</th>
-                    <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>총 지출</th>
+                    <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>실제 지출 (예정 원가)</th>
                     <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>순이익</th>
                     <th style={{ padding: '0.75rem 1rem', textAlign: 'center' }}>완공 및 정산일</th>
                   </tr>
@@ -381,7 +391,12 @@ export default function SettlementHistory() {
                           </span>
                         </td>
                         <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 600, color: 'var(--text-primary)' }}>₩{item.totalAmount.toLocaleString()}</td>
-                        <td style={{ padding: '1rem', textAlign: 'right', color: '#EF4444' }}>₩{item.expenseAmount.toLocaleString()}</td>
+                        <td style={{ padding: '1rem', textAlign: 'right' }}>
+                          <div style={{ color: '#EF4444', fontWeight: 600 }}>₩{item.expenseAmount.toLocaleString()}</div>
+                          {item.plannedExpense && item.plannedExpense > 0 ? (
+                            <div style={{ fontSize: '0.75rem', color: '#F59E0B', marginTop: '0.15rem' }}>가안 ₩{item.plannedExpense.toLocaleString()}</div>
+                          ) : null}
+                        </td>
                         <td style={{ padding: '1rem', textAlign: 'right', color: '#10B981', fontWeight: 700 }}>₩{item.netProfit.toLocaleString()}</td>
                         <td style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{item.completionDate}</td>
                       </tr>

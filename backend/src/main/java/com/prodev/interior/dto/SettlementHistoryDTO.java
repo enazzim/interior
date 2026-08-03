@@ -18,6 +18,7 @@ public class SettlementHistoryDTO {
     private Long totalRevenue;
     private Long estimatedRevenue;
     private Long totalExpense;
+    private Long plannedExpense;
     private Long netProfit;
     private Double profitMargin;
     private List<ProjectSettlementSummary> items;
@@ -35,6 +36,7 @@ public class SettlementHistoryDTO {
         private Long collectedAmount;
         private Long discountAmount;
         private Long expenseAmount;
+        private Long plannedExpense;
         private Long netProfit;
         private String completionDate;
     }

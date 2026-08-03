@@ -9,6 +9,7 @@ export interface ProjectSettlementSummary {
   collectedAmount?: number;
   discountAmount?: number;
   expenseAmount: number;
+  plannedExpense?: number;
   netProfit: number;
   completionDate: string;
 }
@@ -20,6 +21,7 @@ export interface SettlementHistoryResponse {
   totalRevenue: number;
   estimatedRevenue?: number;
   totalExpense: number;
+  plannedExpense?: number;
   netProfit: number;
   profitMargin: number;
   items: ProjectSettlementSummary[];

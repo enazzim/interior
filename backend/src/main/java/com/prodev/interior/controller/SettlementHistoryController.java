@@ -88,6 +88,7 @@ public class SettlementHistoryController {
             // 실수금액이 존재하면 실수금액 기준, 없으면 견적 총액 기준으로 순이익 산출
             long effectiveRevenue = collected > 0 ? collected : total;
             long net = isEstimating ? 0L : (effectiveRevenue - expense);
+            long plannedExpense = isEstimating ? 0L : Math.round(total * 0.7); // 견적서 기준 계약현장 예정 원가 예산(가안)
             
             summaries.add(SettlementHistoryDTO.ProjectSettlementSummary.builder()
                     .projectId(p.getProjectId())
@@ -98,6 +99,7 @@ public class SettlementHistoryController {
                     .collectedAmount(collected)
                     .discountAmount(discount)
                     .expenseAmount(expense)
+                    .plannedExpense(plannedExpense)
                     .netProfit(net)
                     .completionDate(p.getCreatedAt() != null ? p.getCreatedAt().toLocalDate().toString() : targetYear + "-06-15")
                     .build());
@@ -116,6 +118,7 @@ public class SettlementHistoryController {
 
         long totalRevenue = confirmedItems.stream().mapToLong(s -> s.getCollectedAmount() != null && s.getCollectedAmount() > 0 ? s.getCollectedAmount() : s.getTotalAmount()).sum();
         long totalExpense = confirmedItems.stream().mapToLong(SettlementHistoryDTO.ProjectSettlementSummary::getExpenseAmount).sum();
+        long totalPlannedExpense = confirmedItems.stream().mapToLong(SettlementHistoryDTO.ProjectSettlementSummary::getPlannedExpense).sum();
         long netProfit = totalRevenue - totalExpense;
         double margin = totalRevenue > 0 ? (double) netProfit / totalRevenue * 100.0 : 0.0;
 
@@ -126,6 +129,7 @@ public class SettlementHistoryController {
                 .totalRevenue(totalRevenue)
                 .estimatedRevenue(estimatedRevenue)
                 .totalExpense(totalExpense)
+                .plannedExpense(totalPlannedExpense)
                 .netProfit(netProfit)
                 .profitMargin(Math.round(margin * 10.0) / 10.0)
                 .items(summaries)
