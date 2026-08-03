@@ -6,10 +6,8 @@ import App from './App.tsx'
 
 if ((window as any).electronAPI) {
   axios.defaults.baseURL = 'http://localhost:38080';
-} else if (import.meta.env.DEV) {
-  axios.defaults.baseURL = '';
 } else {
-  axios.defaults.baseURL = window.location.protocol + '//' + window.location.hostname + ':8080';
+  axios.defaults.baseURL = '';
 }
 
 // 401/403 응답 시 자동 세션 아웃 인터셉터
