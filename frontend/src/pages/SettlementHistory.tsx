@@ -175,7 +175,7 @@ export default function SettlementHistory() {
 
           <div className="glass-panel" style={{ padding: '1.25rem', borderRadius: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight 600 }}>연간 확정 집행 지출</span>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>연간 확정 집행 지출</span>
               <TrendingUp size={18} style={{ color: '#EF4444' }} />
             </div>
             <div style={{ fontSize: '1.5rem', fontWeight: 700, marginTop: '0.4rem', color: '#EF4444' }}>
